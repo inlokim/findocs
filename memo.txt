@@ -1,0 +1,58 @@
+curl -X PUT "localhost:9200/megacorp/_settings" -H 'Content-Type: application/json' -d'
+{
+    "index": {
+    "blocks": {
+    "read_only_allow_delete": "false"
+    }
+  }
+}
+'
+
+
+res= es.search(index='megacorp',body={
+        'query':{
+            'match':{
+                "about":"play cricket"
+            }
+        }
+    })
+
+
+
+print(hit['_source']['about'])
+print(hit['_score'])
+print('**********************')
+
+
+
+curl -X PUT "localhost:9200/nori_sample" -H 'Content-Type: application/json' -d '
+{
+  "settings": {
+    "index": {
+      "analysis": {
+        "tokenizer": {
+          "nori_user_dict": {
+            "type": "nori_tokenizer",
+            "decompound_mode": "mixed",
+            "user_dictionary": "userdict_ko.txt"
+          }
+        },
+        "analyzer": {
+          "my_analyzer": {
+            "type": "custom",
+            "tokenizer": "nori_user_dict"
+          }
+        }
+      }
+    }
+  }
+}
+' | json_pp
+
+
+curl -X GET "localhost:9200/nori_sample/_analyze" -H 'Content-Type: application/json' -d'
+{
+    "analyzer": "my_analyzer",
+    "text": "안녕 나는 바보 위들이야."
+}
+' | json_pp
